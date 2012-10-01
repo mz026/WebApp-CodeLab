@@ -93,14 +93,62 @@ WReader.dataController = Em.ArrayController.create({
 //  the data controller.
 WReader.itemsController = Em.ArrayController.create({
   /* Exercise 4.1 */
+  content: [],
+
+  // Sets content[] to the filtered results of the data controller
+  filterBy: function(key, value) {
+    this.set('content', WReader.dataController.filterProperty(key, value));
+  },
+
+  // Sets content[] to all items in the data controller
+  clearFilter: function() {
+    this.set('content', WReader.dataController.get('content'));
+  },
+
+  // Shortcut for filterBy
+  showDefault: function() {
+    this.filterBy('read', false);
+  }
 });
 
 
 // Top Menu/Nav Bar view
 WReader.NavBarView = Em.View.extend({
   /* Exercise 4.2 */
+  // A 'property' that returns the count of items
+  itemCount: function() {
+    return WReader.dataController.get('itemCount');
+  }.property('WReader.dataController.itemCount'),
+
+  // A 'property' that returns the count of unread items
+  unreadCount: function() {
+    return WReader.dataController.get('unreadCount');
+  }.property('WReader.dataController.unreadCount'),
+
+  // A 'property' that returns the count of starred items
+  starredCount: function() {
+    return WReader.dataController.get('starredCount');
+  }.property('WReader.dataController.starredCount'),
+
+  // A 'property' that returns the count of read items
+  readCount: function() {
+    return WReader.dataController.get('readCount');
+  }.property('WReader.dataController.readCount'),
 
   /* Exercise 4.4 */
+  showAll: function(){
+    WReader.itemsController.clearFilter();
+  },
+  showUnread: function(){
+    WReader.itemsController.filterBy('read', false);
+  },
+  showStarred: function(){
+    WReader.itemsController.filterBy('starred', true);
+  },
+  showRead: function(){
+    WReader.itemsController.filterBy('read', true);
+  }
+
 });
 
 // View for the ItemsList
