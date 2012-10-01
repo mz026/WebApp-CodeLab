@@ -65,16 +65,52 @@ WReader.dataController = Em.ArrayController.create({
   }
 
   /* Exercise 3.1 */
+  // A 'property' that returns the count of items
+  , itemCount: function() {
+    return this.get('length');
+  }.property('@each'),
+
+  // A 'property' that returns the count of read items
+  readCount: function() {
+    return this.filterProperty('read', true).get('length');
+  }.property('@each.read'),
+
+  // A 'property' that returns the count of unread items
+  unreadCount: function() {
+    return this.filterProperty('read', false).get('length');
+  }.property('@each.read'),
+
+  // A 'property' that returns the count of starred items
+  starredCount: function() {
+    return this.filterProperty('starred', true).get('length');
+  }.property('@each.starred')
 
 });
 
 // View for the ItemsList
 WReader.SummaryListView = Em.View.extend({
   tagName: 'article',
-  classNames: ['well', 'summary']
+  classNames: ['well', 'summary'],
 
   /* Exercise 3.4 */
+  classNameBindings: ['read', 'starred'],
+  // Enables/Disables the read CSS class
+  read: function() {
+    var read = this.get('content').get('read');
+    return read;
+  }.property('WReader.dataController.@each.read'),
+
+  // Enables/Disables the read CSS class
+  starred: function() {
+    var starred = this.get('content').get('starred');
+    return starred;
+  }.property('WReader.dataController.@each.starred'),
+
 
   /* Exercise 3.5 */
-
+  // Returns the date in a human readable format
+  formattedDate: function() {
+    var d = this.get('content').get('pub_date');
+    return moment(d).format('MMMM Do, YYYY');
+  }.property('WReader.dataController.@each.pub_date')
 });
