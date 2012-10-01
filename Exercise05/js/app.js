@@ -6,6 +6,7 @@ var WReader = Em.Application.create({
     this._super();
 
     /* Exercise 5.4 */
+    WReader.GetItemsFromServer();
   }
 });
 
@@ -26,6 +27,68 @@ WReader.Item = Em.Object.extend({
 
 WReader.GetItemsFromServer = function() {
   /* Exercise 5.1 */
+  // URL to data feed that I plan to consume
+  var feed = "http://blog.chromium.org/feeds/posts/default?alt=rss";
+  feed = encodeURIComponent(feed);
+
+  // Feed parser that supports CORS and returns data as a JSON string
+  var feedPipeURL = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D'";
+  feedPipeURL += feed + "'&format=json";
+  //console.log("Starting AJAX Request:", feedPipeURL);
+
+  /* Exercise 5.2 */
+  $.ajax({
+    url: feedPipeURL,
+    dataType: 'json',
+    success: function(data) {
+      /* Exercise 5.3 */
+      // Get the items object from the result
+      var items = data.query.results.rss.channel.item;
+
+      // Get the original feed URL from the result
+      var feedLink = data.query.results.rss.channel.link;
+
+      // Use map to iterate through the items and create a new JSON object for
+      // each item
+      items.map(function(entry) {
+        var item = {};
+        // Set the item ID to the item GUID
+        item.item_id = entry.guid.content;
+        // Set the publication name to the RSS Feed Title
+        item.pub_name = data.query.results.rss.channel.title;
+        item.pub_author = entry.author;
+        item.title = entry.title;
+        // Set the link to the entry to it's original source if it exists
+        //  or set it to the entry link
+        if (entry.origLink) {
+          item.item_link = entry.origLink;
+        } else if (entry.link) {
+          item.item_link = entry.link;
+        }
+        item.feed_link = feedLink;
+        // Set the content of the entry
+        item.content = entry.description;
+        // Ensure the summary is less than 128 characters
+        if (entry.description) {
+          item.short_desc = entry.description.substr(0, 128) + "...";
+        }
+        // Create a new date object with the entry publication date
+        item.pub_date = new Date(entry.pubDate);
+        item.read = false;
+        // Set the item key to the item_id/GUID
+        item.key = item.item_id;
+        // Create the Ember object based on the JavaScript object
+        var emItem = WReader.Item.create(item);
+        // Try to add the item to the data controller, if it's successfully
+        // added, we get TRUE and add the item to the local data store,
+        // otherwise it's likely already in the local data store.
+        WReader.dataController.addItem(emItem);
+      });
+
+      // Refresh the visible items
+      WReader.itemsController.showDefault(); 
+    }
+  });
 };
 
 WReader.dataController = Em.ArrayController.create({
@@ -186,6 +249,7 @@ WReader.NavBarView = Em.View.extend({
 
   // Click handler for menu bar
   refresh: function() {
+    /* Exercise 5.5 */
     WReader.GetItemsFromServer();
   }
 });
