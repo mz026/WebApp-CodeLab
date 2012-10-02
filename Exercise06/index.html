@@ -22,6 +22,7 @@
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
 
   <!-- Exercise 6.1 -->
+  <link rel="stylesheet" href="css/bootstrap.css">
   <link rel="stylesheet" href="css/style.css">
 
   <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
@@ -37,9 +38,35 @@
   <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
 
   <!-- Exercise 6.2 -->
+  <header>
+    <script type="text/x-handlebars">
+      {{#view WReader.NavBarView}}
+        <div class="navbar navbar-fixed-top">
+          <div class="navbar-inner">
+            <div class="container">
+              <a class="brand">wReader</a>
+              <ul class="nav">
+                <li class="itemCount"><a {{action "showAll" on="click"}}>{{itemCount}} Items</a></li>
+                <li class="itemCount"><a {{action "showUnread" on="click"}}>{{unreadCount}} Unread</a></li>
+                <li class="itemCount"><a {{action "showStarred" on="click"}}>{{starredCount}} Starred</a></li>
+                <li class="itemCount"><a {{action "showRead" on="click"}}>{{readCount}} Read</a></li>
+              </ul>
+              <form class="navbar-search pull-left" id="navSearch">
+                <input type="text" class="search-query" placeholder="Search">
+              </form>
+              <ul class="nav pull-right">
+                <li><a {{action "refresh" on="click"}}><i class="icon-refresh icon-white"></i></a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      {{/view}}
+    </script>
+</header>
 
   <section class="mainContent">
     <!-- Exercise 6.3a -->
+    <section class="controls">controls</section>
     <section class="summaries">
       <script type="text/x-handlebars">
           {{#each WReader.itemsController}}
@@ -50,6 +77,7 @@
       </script>
     </section>
     <!-- Exercise 6.3b -->
+    <section class="entries">entries</section>
   </section>
 
   <!-- JavaScript at the bottom for fast page loading -->
