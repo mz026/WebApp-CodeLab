@@ -66,7 +66,28 @@
 
   <section class="mainContent">
     <!-- Exercise 7.6a -->
-
+    <script type="text/x-handlebars">
+      {{#view WReader.NavControlsView}}
+        <div class="tControls">
+          <div class="top">
+            <button {{action "markAllRead"}} class='btn'><i class="icon-ok"></i></button>
+          </div>
+          <div class="middle">
+            <button {{action "navUp"}} class='btn'><i class="icon-arrow-up"></i></button>
+            <button {{action "toggleStar"}} {{bindAttr disabled="buttonDisabled"}} class='btn'>
+              <i {{bindAttr class="starClass"}}></i>
+            </button>
+            <button {{action "toggleRead"}} {{bindAttr disabled="buttonDisabled"}} class='btn'>
+              <i {{bindAttr class="readClass"}}></i>
+            </button>
+            <button {{action "navDown"}} class='btn'><i class="icon-arrow-down"></i></button>
+          </div>
+          <div class="bottom">
+            <button {{action "refresh"}} class='btn'><i class="icon-refresh"></i></button>
+          </div>
+        </div>
+      {{/view}}
+    </script>
     <section class="summaries">
       <script type="text/x-handlebars">
           {{#each WReader.itemsController}}
@@ -79,6 +100,25 @@
 
     <section class="entries">
       <!-- Exercise 7.4 -->
+      <script type="text/x-handlebars">
+        {{#if WReader.selectedItemController.selectedItem}}
+          {{#view WReader.EntryItemView}}
+              <p>{{formattedDate}}</p>
+              <p>
+                <i {{bindAttr class="readClass"}}></i> <i {{bindAttr class="starClass"}}></i>
+                <a target="_blank" {{bindAttr href="content.item_link"}}><i class="icon-share"></i></a>
+              </p>
+              <h2>{{content.title}}</h2>
+              <p>by {{content.pub_author}} of {{content.pub_name}}</p>
+              <p>{{{content.content}}}</p>
+            {{/view}}
+          {{else}}
+            <div class="nothingSelected">
+              <img src="img/sadpanda.png" alt="Sad Panda">
+              <p>Nothing selected.</p>
+            </div>
+          {{/if}}
+      </script>
     </section>
   </section>
 

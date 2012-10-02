@@ -204,10 +204,81 @@ WReader.itemsController = Em.ArrayController.create({
 // all details for a specific item.
 WReader.selectedItemController = Em.Object.create({
   /* Exercice 7.1a */
+  // Pointer to the seclected item
+  selectedItem: null,
+  hasPrev: false,
+  hasNext: false,
+
+  // Called to select an item
+  select: function(item) {
+    this.set('selectedItem', item);
+    if (item) {
+      this.toggleRead(true);
+
+      // Determine if we have a previous/next item in the array
+      var currentIndex = WReader.itemsController.content.indexOf(this.get('selectedItem'));
+      if (currentIndex + 1 >= WReader.itemsController.get('itemCount')) {
+        this.set('hasNext', false);
+      } else {
+        this.set('hasNext', true);
+      }
+      if (currentIndex === 0) {
+        this.set('hasPrev', false);
+      } else {
+        this.set('hasPrev', true);
+      }
+
+    } else {
+      this.set('hasPrev', false);
+      this.set('hasNext', false);
+    }
+  },
 
   /* Exercise 7.1b */
+  // Toggles or sets the read state with an optional boolean
+  toggleRead: function(read) {
+    if (read === undefined) {
+      read = !this.selectedItem.get('read');
+    }
+    this.selectedItem.set('read', read);
+    var key = this.selectedItem.get('item_id');
+  },
+
+  // Toggles or sets the starred status with an optional boolean
+  toggleStar: function(star) {
+    if (star === undefined) {
+      star = !this.selectedItem.get('starred');
+    }
+    this.selectedItem.set('starred', star);
+    var key = this.selectedItem.get('item_id');
+  },
 
   /* Exercise 7.1c */
+  // Selects the next item in the item controller
+  next: function() {
+    // Get's the current index in case we've changed the list of items, if the
+    // item is no longer visible, it will return -1.
+    var currentIndex = WReader.itemsController.content.indexOf(this.get('selectedItem'));
+    // Figure out the next item by adding 1, which will put it at the start
+    // of the newly selected items if they've changed.
+    var nextItem = WReader.itemsController.content[currentIndex + 1];
+    if (nextItem) {
+      this.select(nextItem);
+    }
+  },
+
+  // Selects the previous item in the item controller
+  prev: function() {
+    // Get's the current index in case we've changed the list of items, if the
+    // item is no longer visible, it will return -1.
+    var currentIndex = WReader.itemsController.content.indexOf(this.get('selectedItem'));
+    // Figure out the previous item by subtracting 1, which will result in an
+    // item not found if we're already at 0
+    var prevItem = WReader.itemsController.content[currentIndex - 1];
+    if (prevItem) {
+      this.select(prevItem);
+    }
+  }
 });
 
 // Top Menu/Nav Bar view
@@ -266,9 +337,16 @@ WReader.SummaryListView = Em.View.extend({
 
   classNames: ['well', 'summary'],
 
-  classNameBindings: ['read', 'starred' /* Exercise 7.5a */],
+  /* Exercise 7.5a */
+  classNameBindings: ['read', 'starred', 'active'],
 
   /* Exercise 7.3 */
+  // Handle clicks on an item summary
+  click: function(evt) {
+    // Figure out what the user just clicked on, then set selectedItemController
+    var content = this.get('content');
+    WReader.selectedItemController.select(content);
+  },
 
   // Enables/Disables the read CSS class
   read: function() {
@@ -286,17 +364,57 @@ WReader.SummaryListView = Em.View.extend({
   formattedDate: function() {
     var d = this.get('content').get('pub_date');
     return moment(d).format('MMMM Do, YYYY');
-  }.property('WReader.itemsController.@each.pub_date')
+  }.property('WReader.itemsController.@each.pub_date'),
 
   /* Exercise 7.5b */
-
-});
+  // Enables/Disables the active CSS class
+  active: function() {
+    var selectedItem = WReader.selectedItemController.get('selectedItem');
+    var content = this.get('content');
+    if (content === selectedItem) {
+      return true;
+    }
+  }.property('WReader.selectedItemController.selectedItem')
+  });
 
 // View for the Selected Item
 WReader.EntryItemView = Em.View.extend({
   /* Exercise 7.2a */
+  tagName: 'article',
+  contentBinding: 'WReader.selectedItemController.selectedItem',
+  classNames: ['well', 'entry'],
 
   /* Exercise 7.2b */
+  // Enables/Disables the active CSS class
+  active: function() {
+    return true;
+  }.property('WReader.selectedItemController.selectedItem'),
+
+  starClass: function() {
+    var selectedItem = WReader.selectedItemController.get('selectedItem');
+    if (selectedItem) {
+      if (selectedItem.get('starred')) {
+        return 'icon-star';
+      }
+    }
+    return 'icon-star-empty';
+  }.property('WReader.selectedItemController.selectedItem.starred'),
+
+  readClass: function() {
+    var selectedItem = WReader.selectedItemController.get('selectedItem');
+    if (selectedItem) {
+      if (selectedItem.get('read')) {
+        return 'icon-ok-sign';
+      }
+    }
+    return 'icon-ok-circle';
+  }.property('WReader.selectedItemController.selectedItem.read'),
+
+  // Returns a human readable date
+  formattedDate: function() {
+    var d = this.get('content').get('pub_date');
+    return moment(d).format("MMMM Do YYYY, h:mm a");
+  }.property('WReader.selectedItemController.selectedItem')
 });
 
 // Left hand controls view
@@ -332,7 +450,42 @@ WReader.NavControlsView = Em.View.extend({
   // Click handler for refresh
   refresh: function(event) {
     WReader.GetItemsFromServer();
-  }
+  },
 
   /* Exercise 7.6b */
+  starClass: function() {
+    var selectedItem = WReader.selectedItemController.get('selectedItem');
+    if (selectedItem) {
+      if (selectedItem.get('starred')) {
+        return 'icon-star';
+      }
+    }
+    return 'icon-star-empty';
+  }.property('WReader.selectedItemController.selectedItem.starred'),
+
+  readClass: function() {
+    var selectedItem = WReader.selectedItemController.get('selectedItem');
+    if (selectedItem) {
+      if (selectedItem.get('read')) {
+        return 'icon-ok-sign';
+      }
+    }
+    return 'icon-ok-circle';
+  }.property('WReader.selectedItemController.selectedItem.read'),
+
+  nextDisabled: function() {
+    return !WReader.selectedItemController.get('hasNext');
+  }.property('WReader.selectedItemController.selectedItem.next'),
+
+  prevDisabled: function() {
+    return !WReader.selectedItemController.get('hasPrev');
+  }.property('WReader.selectedItemController.selectedItem.prev'),
+
+  buttonDisabled: function() {
+    var selectedItem = WReader.selectedItemController.get('selectedItem');
+    if (selectedItem) {
+      return false;
+    }
+    return true;
+  }.property('WReader.selectedItemController.selectedItem')
 });
