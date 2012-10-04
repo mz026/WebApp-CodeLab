@@ -400,6 +400,13 @@ WReader.EntryItemView = Em.View.extend({
   }.property('WReader.selectedItemController.selectedItem'),
 
   /* Exercise 8.3 */
+  toggleRead: function() {
+    WReader.selectedItemController.toggleRead();
+  },
+
+  toggleStar: function() {
+    WReader.selectedItemController.toggleStar();
+  },
 
   readButtonClass: function() {
     var selectedItem = WReader.selectedItemController.get('selectedItem');

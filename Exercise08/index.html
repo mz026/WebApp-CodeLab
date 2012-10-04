@@ -91,6 +91,19 @@
     <section class="summaries">
       <script type="text/x-handlebars">
         <!-- Exercise 8.1 -->
+        {{#each WReader.itemsController}}
+          {{#view WReader.SummaryListView contentBinding="this"}}
+            <div class="row-fluid">
+              <div class="span6 pub-name">
+                {{content.pub_name}}
+              </div>
+              <div class="span6 pub-date">
+                {{formattedDate}}
+              </div>
+            </div>
+            <h3 class="pub-title">{{content.title}}</h3>
+          {{/view}}
+        {{/each}}
       </script>
     </section>
 
@@ -98,6 +111,24 @@
       <script type="text/x-handlebars">
         {{#if WReader.selectedItemController.selectedItem}}
           <!-- Exercise 8.2 -->
+          {{#view WReader.EntryItemView}}
+            <div class="row-fluid">
+              <div class="span8">{{formattedDate}}</div>
+                <div class="span4 actions">
+                  <button type="button" {{bindAttr class="readButtonClass"}} {{action "toggleRead"}}>
+                    <i {{bindAttr class="readClass"}} class="icon-white"></i>
+                  </button>
+                  <button type="button" {{bindAttr class="starButtonClass"}} {{action "toggleStar"}}>
+                    <i {{bindAttr class="starClass"}}></i>
+                  </button>
+                  <a target="_blank" {{bindAttr href="content.item_link"}} class="btn"><i class="icon-share"></i></a>
+                </div>
+              </div>
+              <h2>{{content.title}}</h2>
+              <span class="author">{{content.pub_author}}</span> - <span class="pub-name">{{content.pub_name}}</span>
+              <hr />
+              <p class="post-content">{{{content.content}}}</p>
+            {{/view}}
         {{else}}
           <div class="nothingSelected">
             <img src="img/sadpanda.png" alt="Sad Panda">

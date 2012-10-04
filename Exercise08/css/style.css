@@ -122,8 +122,36 @@ section.mainContent div {
   -webkit-overflow-scrolling: touch;
 }
 
+.summary .pub-name {
+  font-size: 0.9em;
+}
+.summary .pub-date {
+  font-size: 0.9em;
+  text-align: right;
+}
 /* Exercise 8.2b */
+.entry {
+  box-shadow: 5px 5px 5px rgba(210, 210, 210, 0.6);
+}
 
+.entry.active {
+  border: 0px solid #222;
+}
+
+.entry .pub-date {
+  font-size: 0.9em;
+}
+.entry .actions {
+  text-align: right;
+}
+
+.entry .post-content img {
+  margin: 5px;
+}
+
+.nothingSelected {
+  text-align: center;
+}
 .icon-refresh.spin {
 
 }
